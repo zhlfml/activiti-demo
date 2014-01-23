@@ -1,0 +1,9 @@
+*~
+.*
+*.iml
+upload/
+static/
+target/
+bin/
+
+!.gitignore
