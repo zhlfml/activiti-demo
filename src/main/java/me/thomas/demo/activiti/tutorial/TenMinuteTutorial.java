@@ -1,10 +1,12 @@
 package me.thomas.demo.activiti.tutorial;
 
 import org.activiti.engine.*;
-import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.task.Task;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TenMinuteTutorial {
 
@@ -16,54 +18,58 @@ public class TenMinuteTutorial {
         // Get Activiti services
         RepositoryService repositoryService = processEngine.getRepositoryService();
         RuntimeService runtimeService = processEngine.getRuntimeService();
-
-        // Deploy the process definition
-        repositoryService.createDeployment()
-                .addClasspathResource("FinancialReportProcess.bpmn20.xml")
-                .deploy();
-
-        // Start a process instance
-        String procId = runtimeService.startProcessInstanceByKey("financialReport").getId();
-
-        // Get the first task
         TaskService taskService = processEngine.getTaskService();
-        List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup("accountancy").list();
-        for (Task task : tasks) {
-            System.out.println("Following task is available for accountancy group: " + task.getName());
 
+        // Deploy process
+        if (repositoryService.createProcessDefinitionQuery().processDefinitionKey("askForLeave").count() == 0) {
+            repositoryService.createDeployment().addClasspathResource("askForLeave.bpmn").deploy().getId();
+        }
+
+        String processInstanceId = runtimeService.startProcessInstanceByKey("askForLeave").getId();
+
+        // Do the first task
+        List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup("manager").active().list();
+        System.out.println("manager's tasks count => " + tasks.size());
+        for (Task task : tasks) {
             // claim it
-            taskService.claim(task.getId(), "fozzie");
+            taskService.claim(task.getId(), "thomas");
+        }
+        // Verify that thomas can retrieve the task
+        tasks = taskService.createTaskQuery().taskAssignee("thomas").active().list();
+        System.out.println("thomas' tasks count => " + tasks.size());
+        for (Task task : tasks) {
+            System.out.println("task.getId() => " + task.getId());
+            // complete it
+            Map<String, Object> variables = new HashMap<String, Object>();
+            variables.put("approved", true);
+
+            taskService.complete(task.getId(), variables);
         }
 
-        // Verify Fozzie can now retrieve the task
-        tasks = taskService.createTaskQuery().taskAssignee("fozzie").list();
-        for (Task task : tasks) {
-            System.out.println("Task for fozzie: " + task.getName());
+        tasks = taskService.createTaskQuery().taskAssignee("thomas").active().list();
+        System.out.println("after complete tasks, thomas' tasks count = > " + tasks.size());
 
-            // Complete the task
+        // 找出当前节点
+        Execution execution = runtimeService.createExecutionQuery().executionId(processInstanceId).singleResult();
+        List<String> activeActivityIds = runtimeService.getActiveActivityIds(execution.getId());
+        for (String activeActivityId : activeActivityIds) {
+            System.out.println("activeActivityId => " + activeActivityId);
+        }
+
+        // Do the second task
+        tasks = taskService.createTaskQuery().taskCandidateGroup("hr").active().list();
+        for (Task task : tasks) {
+            System.out.println("task.getId() => " + task.getId());
+            // claim it
+            taskService.claim(task.getId(), "celine");
+        }
+        // Verify that celine can retrieve the task
+        tasks = taskService.createTaskQuery().taskAssignee("celine").active().list();
+        for (Task task : tasks) {
+            // complete it
             taskService.complete(task.getId());
         }
 
-        System.out.println("Number of tasks for fozzie: "
-                + taskService.createTaskQuery().taskAssignee("fozzie").count());
-
-        // Retrieve and claim the second task
-        tasks = taskService.createTaskQuery().taskCandidateGroup("management").list();
-        for (Task task : tasks) {
-            System.out.println("Following task is available for accountancy group: " + task.getName());
-            taskService.claim(task.getId(), "kermit");
-        }
-
-        // Completing the second task ends the process
-        for (Task task : tasks) {
-            taskService.complete(task.getId());
-        }
-
-        // verify that the process is actually finished
-        HistoryService historyService = processEngine.getHistoryService();
-        HistoricProcessInstance historicProcessInstance =
-                historyService.createHistoricProcessInstanceQuery().processInstanceId(procId).singleResult();
-        System.out.println("Process instance end time: " + historicProcessInstance.getEndTime());
     }
 
 }
