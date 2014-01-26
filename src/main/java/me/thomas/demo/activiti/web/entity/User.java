@@ -1,8 +1,6 @@
 package me.thomas.demo.activiti.web.entity;
 
 import me.thomas.demo.activiti.web.BaseEntity;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
