@@ -8,7 +8,7 @@
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="usertask2" name="Hr" activiti:candidateGroups="hr">
+    <userTask id="usertask2" name="Hr" activiti:assignee="${hr}">
       <documentation>Your turn.</documentation>
     </userTask>
     <sequenceFlow id="flow3" name="Ok" sourceRef="exclusivegateway1" targetRef="usertask2">
@@ -19,27 +19,13 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approved}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow5" sourceRef="usertask3" targetRef="usertask1"></sequenceFlow>
-    <sequenceFlow id="flow6" sourceRef="usertask2" targetRef="mailtask1"></sequenceFlow>
     <endEvent id="terminateendevent1" name="TerminateEndEvent">
       <terminateEventDefinition></terminateEventDefinition>
     </endEvent>
-    <sequenceFlow id="flow7" sourceRef="mailtask1" targetRef="terminateendevent1"></sequenceFlow>
-    <serviceTask id="mailtask1" name="Send Email" activiti:async="true" activiti:exclusive="false" activiti:type="mail">
-      <extensionElements>
-        <activiti:field name="to">
-          <activiti:string>tzhao@g360link.com,zhao_xshg47@126.com</activiti:string>
-        </activiti:field>
-        <activiti:field name="subject">
-          <activiti:string>Test Email Task22</activiti:string>
-        </activiti:field>
-        <activiti:field name="html">
-          <activiti:string>Your apply is &lt;b&gt;passed!&lt;/b&gt; version 2.</activiti:string>
-        </activiti:field>
-      </extensionElements>
-    </serviceTask>
+    <sequenceFlow id="flow6" sourceRef="usertask2" targetRef="terminateendevent1"></sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_firstProcess">
-    <bpmndi:BPMNPlane bpmnElement="firstProcess" id="BPMNPlane_firstProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_askForLeave">
+    <bpmndi:BPMNPlane bpmnElement="askForLeave" id="BPMNPlane_askForLeave">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="30.0" y="200.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -56,10 +42,7 @@
         <omgdc:Bounds height="55.0" width="105.0" x="240.0" y="310.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="terminateendevent1" id="BPMNShape_terminateendevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="670.0" y="200.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="mailtask1" id="BPMNShape_mailtask1">
-        <omgdc:Bounds height="55.0" width="105.0" x="515.0" y="190.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="540.0" y="200.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="65.0" y="217.0"></omgdi:waypoint>
@@ -89,11 +72,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
         <omgdi:waypoint x="475.0" y="217.0"></omgdi:waypoint>
-        <omgdi:waypoint x="515.0" y="217.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
-        <omgdi:waypoint x="620.0" y="217.0"></omgdi:waypoint>
-        <omgdi:waypoint x="670.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="217.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
